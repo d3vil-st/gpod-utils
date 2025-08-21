@@ -75,7 +75,7 @@ static bool  _remove_confirm(bool interactv_, const char* fmt_, ...)
     {
         g_print("  [y/N]: ");
 
-	/* remember getchar() on the term will also get the '\n' on the next 
+	/* remember getchar() on the term will also get the '\n' on the next
 	 * getchar() call - cheaply flush the buffer afterwards
 	 * */
         char  c = getchar();
@@ -116,8 +116,8 @@ static void  _remove_track(bool interactv_, Itdb_iTunesDB* itdb_, Itdb_Track* tr
     gmtime_r(&(track_->time_added), &tm);
     strftime(dt, 20, "%Y-%m-%dT%H:%M:%S", &tm);
 
-    if (!_remove_confirm(interactv_, 
-            "[%3u/%u]  %s -> { id=%d title='%s' artist='%s' album='%s' time_added=%d (%s)  cksum=%ld", 
+    if (!_remove_confirm(interactv_,
+            "[%3u/%u]  %s -> { id=%d title='%s' artist='%s' album='%s' time_added=%d (%s)  cksum=%ld",
 	    current_, N_,
 	    track_->ipod_path, track_->id, track_->title ? track_->title : "", track_->artist ? track_->artist : "", track_->album ? track_->album : "", track_->time_added, dt, gpod_saved_cksum(track_)) ) {
 	return;
@@ -135,7 +135,10 @@ static void  _remove_track(bool interactv_, Itdb_iTunesDB* itdb_, Itdb_Track* tr
     sprintf(path, "%s/%s", itdb_get_mountpoint(track_->itdb), track_->ipod_path);
     g_unlink(path);
     *bytes_ += track_->size;
-  
+
+    if (itdb_track_has_thumbnails(track_)) {
+        itdb_track_remove_thumbnails(track_);
+    }
     // remove (and free mem)
     itdb_track_remove(track_);
     ++(*removed_);
@@ -149,8 +152,8 @@ static void  _remove_playlist(bool interactv_, Itdb_iTunesDB* itdb_, Itdb_Playli
     gmtime_r(&(playlist_->timestamp), &tm);
     strftime(dt, 20, "%Y-%m-%dT%H:%M:%S", &tm);
 
-    if (!_remove_confirm(interactv_, 
-            "[%3u/%u]  %s -> { count=%d time_added=%d (%s)", 
+    if (!_remove_confirm(interactv_,
+            "[%3u/%u]  %s -> { count=%d time_added=%d (%s)",
 	    current_, N_,
 	    playlist_->name, g_list_length(playlist_->members), playlist_->timestamp, dt)) {
 	return;
