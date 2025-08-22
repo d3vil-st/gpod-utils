@@ -234,7 +234,7 @@ int main (int argc, char *argv[])
 	    case 'c':  opts.mode |= GPOD_MODE_CKSUM; break;
 	    case 'C':  opts.mode |= GPOD_MODE_CKSUM_REGEN; break;
 	    case 'n':  opts.sync_limit = atol(optarg); break;
-	    case 'T': 
+	    case 'T':
 	    {
 		const unsigned short  t = opts.threads;
 		opts.threads = (unsigned short)atoi(optarg);
@@ -357,7 +357,7 @@ int main (int argc, char *argv[])
     {
 	track = (Itdb_Track*)i->data;
 
-        g_print("CLEAN  %s -> { id=%d title='%s' artist='%s' album='%s' time_added=%u }\n", 
+        g_print("CLEAN  %s -> { id=%d title='%s' artist='%s' album='%s' time_added=%u }\n",
                 track->ipod_path, track->id, track->title ? track->title : "", track->artist ? track->artist : "", track->album ? track->album : "", track->time_added);
 
         if (!supported) {
@@ -368,6 +368,13 @@ int main (int argc, char *argv[])
 	for (GList* j=itdb->playlists; j!=NULL; j=j->next) {
 	    itdb_playlist_remove_track((Itdb_Playlist*)j->data, track);
 	}
+        if (itdb_track_has_thumbnails(track)) {
+            g_print("Removing thumbnail\n");
+            itdb_track_remove_thumbnails(track);
+        } else {
+            g_print("Track has no thumbnail\n");
+        }
+
         itdb_track_remove(track);
         stats.rm_bytes += track->size;
     }
@@ -403,7 +410,7 @@ int main (int argc, char *argv[])
             // no xcode, if its a supported file, add it back to db
             track->ipod_path = g_strdup(resolved_path+strlen(mountpoint)-1);
 
-            g_print("ADD   %s -> { title='%s' artist='%s' album='%s' }\n", 
+            g_print("ADD   %s -> { title='%s' artist='%s' album='%s' }\n",
                     track->ipod_path, track->title ? track->title : "", track->artist ? track->artist : "", track->album ? track->album : "");
             stats.add_bytes += track->size;
 
@@ -420,7 +427,7 @@ int main (int argc, char *argv[])
             if (opts.mode & GPOD_MODE_DB)
             {
                 // trust the db, remove from fs
-                g_print("REMVE  %s -> { title='%s' artist='%s' album='%s' }\n", 
+                g_print("REMVE  %s -> { title='%s' artist='%s' album='%s' }\n",
                         ++removed, resolved_path, track->title ? track->title : "", track->artist ? track->artist : "", track->album ? track->album : "");
 
                 g_unlink(resolved_path);
@@ -428,7 +435,7 @@ int main (int argc, char *argv[])
             }
             else
             {
-                g_print("ORPHN  %s -> { title='%s' artist='%s' album='%s' }\n", 
+                g_print("ORPHN  %s -> { title='%s' artist='%s' album='%s' }\n",
                         resolved_path, track->title ? track->title : "", track->artist ? track->artist : "", track->album ? track->album : "");
                 ++orphaned;
                 stats.orphan_bytes += track->size;
@@ -464,7 +471,7 @@ int main (int argc, char *argv[])
 	mpl = itdb_playlist_mpl(itdb);
 	GList*  i = mpl->members;
 
-	struct _cksum_pool_args  pool_args = { 
+	struct _cksum_pool_args  pool_args = {
 	    .mountpoint = mountpoint,
 	    .itdb = itdb,
 	    .sync_limit = opts.sync_limit,

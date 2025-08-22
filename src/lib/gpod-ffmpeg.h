@@ -54,7 +54,7 @@ struct gpod_ff_meta {
     char *album_sort;
     char *album_artist_sort;
     char *composer_sort;
-}; 
+};
 
 struct gpod_ff_audio {
     enum AVCodecID  codec_id;
@@ -78,6 +78,11 @@ struct gpod_ff_video {
 };
 
 
+struct gpod_ff_coverart {
+    gsize size;
+    guchar *data;
+};
+
 struct gpod_ff_media_info
 {
     char  path[PATH_MAX];
@@ -93,6 +98,7 @@ struct gpod_ff_media_info
     struct gpod_ff_audio  audio;
     struct gpod_ff_video  video;
     struct gpod_ff_meta  meta;
+    struct gpod_ff_coverart *coverart;
 };
 
 enum gpod_ff_enc {
@@ -115,7 +121,7 @@ struct gpod_ff_enc_support {
 extern const struct  gpod_ff_enc_support*  gpod_ff_encoders;
 
 
-enum gpod_ff_transcode_quality { 
+enum gpod_ff_transcode_quality {
     GPOD_FF_XCODE_VBR0 = 0,
     GPOD_FF_XCODE_VBR1,
     GPOD_FF_XCODE_VBR2,

@@ -137,7 +137,10 @@ static void  _remove_track(bool interactv_, Itdb_iTunesDB* itdb_, Itdb_Track* tr
     *bytes_ += track_->size;
 
     if (itdb_track_has_thumbnails(track_)) {
+        g_print("Removing thumbnail\n");
         itdb_track_remove_thumbnails(track_);
+    } else {
+       g_print("Track has no thumbnail\n");
     }
     // remove (and free mem)
     itdb_track_remove(track_);
@@ -321,7 +324,7 @@ main (int argc, char *argv[])
 
     const Itdb_IpodInfo*  ipodinfo = itdb_device_get_ipod_info(itdev);
     const bool  supported = gpod_write_supported(ipodinfo);
-    
+
     g_print("removing tracks from iPod %s %s, currently %u tracks%s\n",
                 itdb_info_get_ipod_generation_string(ipodinfo->ipod_generation),
                 ipodinfo->model_number,
