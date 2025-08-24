@@ -1002,7 +1002,7 @@ static int load_encode_and_write(AVAudioFifo *fifo,
                                  AVFormatContext *output_format_context,
                                  AVCodecContext *output_codec_context, int64_t* pts, char** err_)
 {
-    /* Temporary storage of the output samples of the frame written to the file. */ 
+    /* Temporary storage of the output samples of the frame written to the file. */
 
     /* Use the maximum number of possible samples per frame.
      * If there is less than the maximum possible frame size in the FIFO
@@ -1176,8 +1176,8 @@ int  gpod_ff_transcode(struct gpod_ff_media_info *info_, struct gpod_ff_transcod
 #ifdef GPOD_XCODE_SWR_DEBUG
 	    printf("fifo buf can convert:  input samples=%d  frame size=%d  input frame size=%d  channels=%d  channel_layout=%d sample fmt=%s  sample rate=%d  -> output codec frame size=%d  channels=%d  layout=%d  sample format=%s  sample rate=%d  swr delay=%d  finished=%d\n", av_audio_fifo_size(input_samples_fifo),
 		    output_frame_size,
-		    input_codec_context->frame_size, input_codec_context->channels, input_codec_context->channel_layout, av_get_sample_fmt_name(input_codec_context->sample_fmt), input_codec_context->sample_rate, 
-		    output_codec_context->frame_size, output_codec_context->channels, output_codec_context->channel_layout, av_get_sample_fmt_name(output_codec_context->sample_fmt), output_codec_context->sample_rate, 
+		    input_codec_context->frame_size, input_codec_context->channels, input_codec_context->channel_layout, av_get_sample_fmt_name(input_codec_context->sample_fmt), input_codec_context->sample_rate,
+		    output_codec_context->frame_size, output_codec_context->channels, output_codec_context->channel_layout, av_get_sample_fmt_name(output_codec_context->sample_fmt), output_codec_context->sample_rate,
 		    swr_get_delay(resample_context, input_codec_context->sample_rate), finished);
 #endif
 

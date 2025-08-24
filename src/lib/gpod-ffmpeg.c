@@ -351,7 +351,6 @@ void extract_coverart (AVFormatContext* ctx, struct gpod_ff_coverart *coverart)
             if (frame->width <= 600 && frame->height <= 600 &&
                 (st->codecpar->codec_id == AV_CODEC_ID_MJPEGB ||
                     st->codecpar->codec_id == AV_CODEC_ID_MJPEG)) {
-                g_print("Got coverart size: %dx%d format: %s\n", frame->width, frame->height, avcodec_get_name(st->codecpar->codec_id));
                 pic_found = true;
             }
             break;
@@ -721,7 +720,7 @@ Itdb_Track*  gpod_ff_meta_to_track(const struct gpod_ff_media_info* meta_, time_
     track->size = meta_->file_size;
     track->tracklen = meta_->audio.song_length;
     track->bitrate = meta_->audio.bitrate;
-    track->samplerate = meta_->audio.samplerate;
+    track->samplerate = meta_->audio.samplerate <= 48000 ? meta_->audio.samplerate : 48000;
 
     track->title = gpod_sanitize_text(gpod_trim(meta_->meta.title), sanitize_);
     track->album = gpod_sanitize_text(gpod_trim(meta_->meta.album), sanitize_);
@@ -797,6 +796,7 @@ void  gpod_ff_transcode_ctx_init(struct gpod_ff_transcode_ctx* obj_,
 	obj_->extn = ".m4a";
         obj_->audio_opts.quality_scale_factor = 0;
 	obj_->audio_opts.samplefmt = AV_SAMPLE_FMT_S16P;
+    obj_->audio_opts.samplerate = 48000;
         break;
 
       case GPOD_FF_ENC_MP3:

@@ -194,7 +194,7 @@ main (int argc, char *argv[])
             case 'g':  opts.genre  = gpod_trim(optarg);  break;
             case 'y':  opts.year   = atol(optarg);  break;
             case 'T':  opts.track  = atol(optarg);  break;
-            case 'r': 
+            case 'r':
 		opts.rating = atol(optarg);
 		if (opts.rating > 5) {
 		    opts.rating = 5;
@@ -262,7 +262,7 @@ main (int argc, char *argv[])
 
     const Itdb_IpodInfo*  ipodinfo = itdb_device_get_ipod_info(itdev);
     const bool  supported = gpod_write_supported(ipodinfo);
- 
+
     g_print("updating iPod %s track meta %s", itdb_info_get_ipod_generation_string(ipodinfo->ipod_generation), supported ? "{" : " - device NOT supported\n");
 
     if (!supported) {
@@ -337,7 +337,7 @@ main (int argc, char *argv[])
         else
         {
             arg.u.id = (uint32_t)atoll(p);
-            
+
             if ((track = itdb_track_id_tree_by_id(idtree, arg.u.id)) ) {
                 itdb_filename_ipod2fs(track->ipod_path);
             }
@@ -363,7 +363,7 @@ main (int argc, char *argv[])
                track->genre ? track->genre : "",
                track->track_nr, track->year,
                dt);
- 
+
         TRACK_ASSIGN(track->title,            opts.title,       1);
         TRACK_ASSIGN(track->artist,           opts.artist,      1);
         TRACK_ASSIGN(track->albumartist,      opts.albumartist, 1);
@@ -377,8 +377,8 @@ main (int argc, char *argv[])
         TRACK_ASSIGN(track->sort_composer,    gpod_sortname(opts.composer),    0);
         TRACK_ASSIGN(track->sort_album,       gpod_sortname(opts.album),       0);
 
-        if (opts.rating >= 0) track->rating = opts.rating; 
-        if (opts.track >= 0) track->track_nr = opts.track; 
+        if (opts.rating >= 0) track->rating = opts.rating;
+        if (opts.track >= 0) track->track_nr = opts.track;
         if (opts.year >= 0) track->year = opts.year;
 
         ++updated;

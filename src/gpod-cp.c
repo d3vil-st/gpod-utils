@@ -288,7 +288,6 @@ static int  gpod_cp_track(const struct gpod_cp_log_ctx* lctx_,
         itdb_track_add(itdb, track, -1);
 
         if (coverart->data && coverart->size) {
-            g_print("Adding extracted thumbnail to the track\n");
             itdb_track_set_thumbnails_from_data(track, coverart->data, coverart->size);
         }
 
@@ -540,6 +539,7 @@ void gpod_cp_thread(gpointer args_, gpointer pool_args_)
         }
 
         g_mutex_unlock(&pargs->cp_lck);
+        g_free(coverart.data);
     }
 
 thread_cleanup:

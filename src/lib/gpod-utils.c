@@ -70,7 +70,7 @@ char*  gpod_trim(const char* what_)
     }
 
     unsigned  p1 = strlen(p0);
-    while (p1 && isspace(p0[p1-1])) { 
+    while (p1 && isspace(p0[p1-1])) {
 	--p1;
     }
 
@@ -107,6 +107,12 @@ char* gpod_sortname(const char* name_)
 
 const char* gpod_default_mountpoint(char* dest_, size_t n_)
 {
+    if (getenv("IPOD_MOUNT_POINT")) {
+        strcpy(dest_, getenv("IPOD_MOUNT_POINT"));
+        n_ = strlen(getenv("IPOD_MOUNT_POINT"));
+        return dest_;
+    }
+
     struct passwd   pw = { 0 };
     struct passwd*  res = &pw;
     struct passwd*  ptr;
@@ -131,14 +137,19 @@ bool  gpod_write_supported(const Itdb_IpodInfo* ipi_)
      * iTunesDB/iTunesCDB and sqlite3 db for the ipod which doesn't
      * work well
      */
-    static const int  supported[] = { 
+    static const int  supported[] = {
 	ITDB_IPOD_GENERATION_FIRST,
 	ITDB_IPOD_GENERATION_SECOND,
 	ITDB_IPOD_GENERATION_THIRD,
 	ITDB_IPOD_GENERATION_FOURTH,
 	ITDB_IPOD_GENERATION_PHOTO,
+	ITDB_IPOD_GENERATION_MINI_1,
+	ITDB_IPOD_GENERATION_MINI_2,
 	ITDB_IPOD_GENERATION_VIDEO_1,
 	ITDB_IPOD_GENERATION_VIDEO_2,
+	ITDB_IPOD_GENERATION_CLASSIC_1,
+	ITDB_IPOD_GENERATION_CLASSIC_2,
+	ITDB_IPOD_GENERATION_CLASSIC_3,
 	-1,
     };
 
@@ -153,7 +164,7 @@ bool  gpod_write_supported(const Itdb_IpodInfo* ipi_)
     return false;
 }
 
-void  gpod_walk_dir(const gchar *dir_, GSList **l_) 
+void  gpod_walk_dir(const gchar *dir_, GSList **l_)
 {
     GDir*  dir_handle;
     const gchar*  filename;
@@ -232,7 +243,7 @@ void  gpod_bytes_to_human(char* buf_, unsigned bufsz_, size_t  bytes_, bool wrap
 
 #ifdef WANT_GPOD_HASH
 guint  gpod_hash(const Itdb_Track* track_)
-{ 
+{
     char  path[PATH_MAX] = { 0 };
     sprintf(path, "%s/%s", itdb_get_mountpoint(track_->itdb), track_->ipod_path);
     itdb_filename_ipod2fs(path);
@@ -297,7 +308,7 @@ guint  gpod_saved_cksum(const Itdb_Track* track_)
 }
 
 static guint  _track_mkhash(Itdb_Track* track_)
-{ 
+{
     const guint  hash = gpod_saved_cksum(track_) ? gpod_saved_cksum(track_) : gpod_hash(track_);
     track_->userdata = malloc(sizeof(guint));
     *((guint*)track_->userdata) = hash;
@@ -307,7 +318,7 @@ static guint  _track_mkhash(Itdb_Track* track_)
 }
 
 static guint  _track_hash(gconstpointer v_)
-{ 
+{
     return *((guint*)(v_));
 }
 
@@ -544,7 +555,7 @@ static gint album_cmp(gconstpointer a_, gconstpointer b_)
 	return 1;
     }
 
-    return strcmp(a->key.artist, b->artist) == 0 && 
+    return strcmp(a->key.artist, b->artist) == 0 &&
            strcmp(a->key.album,  b->album)  == 0 ? 0 : 1;
 #endif
 }
@@ -804,7 +815,7 @@ void  gpod_playlist_recent(unsigned* playlists_, unsigned* tracks_, Itdb_iTunesD
 
     g_list_foreach(itdb_playlist_mpl(itdb_)->members, albums_index, &albums);
     albums = g_slist_sort(albums, album_time_added_sort);  // newest/most recent upd album first
-    
+
 #ifdef GPOD_UTILS_DEBUG_UTILS
     g_slist_foreach(albums, dump_album, NULL);
     g_slist_foreach(recents, dump_recent_elem, NULL);

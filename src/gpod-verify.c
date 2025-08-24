@@ -369,10 +369,7 @@ int main (int argc, char *argv[])
 	    itdb_playlist_remove_track((Itdb_Playlist*)j->data, track);
 	}
         if (itdb_track_has_thumbnails(track)) {
-            g_print("Removing thumbnail\n");
             itdb_track_remove_thumbnails(track);
-        } else {
-            g_print("Track has no thumbnail\n");
         }
 
         itdb_track_remove(track);
