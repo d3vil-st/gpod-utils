@@ -21,23 +21,7 @@ jobs:
         libgpod-dev \
         libglib2.0-dev \
         libavcodec-dev libavformat-dev libavfilter-dev libswscale-dev libavutil-dev \
-        libjson-c-dev
+        libjson-c-dev dh-make
 
-    - name: configure prep
-      run: |
-        autoreconf --install
-        autoconf
-
-    - name: build default
-      run: |
-        ./configure && make
-
-    - name: build with sqlite3
-      run: |
-        sudo apt-get install -yq libsqlite3-dev
-        ./configure && make clean && make
-
-    - name: build with debug
-      run: |
-        make clean
-        ./configure --enable-debug && make
+    - name: build deb
+      run: fakeroot debian/rules binary
