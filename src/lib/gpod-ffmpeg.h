@@ -19,6 +19,7 @@ extern "C" {
 #include <limits.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <glib.h>
 
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
