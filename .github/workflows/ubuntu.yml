@@ -1,34 +1,30 @@
-name: C/C++ CI
+name: Build Debian Package
 
 on:
   push:
-    branches: [ "master" ]
     tags: [ "v*" ]
-  pull_request:
-    branches: [ "master" ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-    - name: install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -yq \
-        build-essential clang clang-tools autotools-dev autoconf libtool \
-        libgpod-dev \
-        libglib2.0-dev \
-        libavcodec-dev libavformat-dev libavfilter-dev libswscale-dev libavutil-dev \
-        libjson-c-dev dh-make
+      - uses: actions/checkout@v3
 
-    - name: Build deb
-      run: fakeroot debian/rules binary
+      - name: install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -yq \
+          build-essential clang clang-tools autotools-dev autoconf libtool \
+          libgpod-dev \
+          libglib2.0-dev \
+          libavcodec-dev libavformat-dev libavfilter-dev libswscale-dev libavutil-dev \
+          libjson-c-dev dh-make
 
-    - name: Release
-      uses: softprops/action-gh-release@v2
-      if: github.ref_type == 'tag'
-      with:
-        files: ../gpod-utils_1.4.0-1_amd64.deb
+      - name: Build deb
+        run: fakeroot debian/rules binary
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
+        with:
+          files: ../gpod-utils_*.deb
