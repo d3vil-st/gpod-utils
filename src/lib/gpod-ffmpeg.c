@@ -50,9 +50,15 @@ void gpod_ff_meta_free(struct gpod_ff_meta*  obj_)
     memset(obj_, 0, sizeof(struct gpod_ff_meta));
 }
 
+void gpod_ff_coverart_free(struct gpod_ff_coverart*  obj_)
+{
+    free(obj_->data);
+}
+
 void  gpod_ff_media_info_free(struct gpod_ff_media_info*  obj_)
 {
     gpod_ff_meta_free(&obj_->meta);
+    gpod_ff_coverart_free(&obj_->coverart);
 }
 
 void  gpod_ff_media_info_init(struct gpod_ff_media_info*  obj_)
@@ -697,7 +703,7 @@ int  gpod_ff_scan(struct gpod_ff_media_info *info_, const char *file_, Itdb_Ipod
         }
     }
 
-    extract_coverart(ctx, info_->coverart);
+    extract_coverart(ctx, &info_->coverart);
 
     avformat_close_input(&ctx);
     return 0;

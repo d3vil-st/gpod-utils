@@ -149,7 +149,6 @@ _track(const char* file_, struct gpod_ff_transcode_ctx* xfrm_, uint64_t uuid_, I
 {
     struct gpod_ff_media_info  mi;
     gpod_ff_media_info_init(&mi);
-    mi.coverart = coverart;
 
     const char*  file = file_;
     if (gpod_ff_scan(&mi, file, idevice_, err_) < 0) {
