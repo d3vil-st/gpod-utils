@@ -110,6 +110,7 @@ const char* gpod_default_mountpoint(char* dest_, size_t n_)
     if (getenv("IPOD_MOUNT_POINT")) {
         strcpy(dest_, getenv("IPOD_MOUNT_POINT"));
         n_ = strlen(getenv("IPOD_MOUNT_POINT"));
+        g_printerr("Using mounpoint from ENV: '%s'\n", dest_);
         return dest_;
     }
 

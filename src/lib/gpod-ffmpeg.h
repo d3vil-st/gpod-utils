@@ -99,7 +99,7 @@ struct gpod_ff_media_info
     struct gpod_ff_audio  audio;
     struct gpod_ff_video  video;
     struct gpod_ff_meta  meta;
-    struct gpod_ff_coverart coverart;
+    struct gpod_ff_coverart *coverart;
 };
 
 enum gpod_ff_enc {

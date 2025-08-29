@@ -149,6 +149,7 @@ _track(const char* file_, struct gpod_ff_transcode_ctx* xfrm_, uint64_t uuid_, I
 {
     struct gpod_ff_media_info  mi;
     gpod_ff_media_info_init(&mi);
+    mi.coverart = coverart;
 
     const char*  file = file_;
     if (gpod_ff_scan(&mi, file, idevice_, err_) < 0) {
@@ -299,7 +300,13 @@ static int  gpod_cp_track(const struct gpod_cp_log_ctx* lctx_,
             stats.xcode_time += (xfrm_->path[0]) ? xcodetime_ : 0;
             ++(*added_);
             itdb_filename_ipod2fs(track->ipod_path);
-            gpod_cp_log(lctx_, "{ title='%s' artist='%s' album='%s' ipod_path='%s' }\n", track->title ? track->title : "", track->artist ? track->artist : "", track->album ? track->album : "", track->ipod_path);
+            gpod_cp_log(lctx_, "{ title='%s' artist='%s' album='%s' coverart='%s' ipod_path='%s'}\n",
+                track->title ? track->title : "",
+                track->artist ? track->artist : "",
+                track->album ? track->album : "",
+                coverart->data && coverart->size ? "yes" : "no",
+                track->ipod_path
+            );
 
             *pending_ = g_slist_append(*pending_, g_strdup(track->ipod_path));
 
