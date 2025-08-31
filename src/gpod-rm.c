@@ -268,7 +268,11 @@ main (int argc, char *argv[])
         opts.itdb_path = gpod_default_mountpoint(mountpoint, sizeof(mountpoint));
     }
     else {
-	strcpy(mountpoint, opts.itdb_path);
+	    strcpy(mountpoint, opts.itdb_path);
+    }
+
+    if (mountpoint[strlen(mountpoint)-1] != '/') {
+        strcat(mountpoint, "/");
     }
 
 
@@ -295,6 +299,12 @@ main (int argc, char *argv[])
         }
         g_error_free (error);
         error = NULL;
+        return -1;
+    }
+
+
+    if (itdb == NULL) {
+        g_print("failed to open iTunesDB via %s\n", opts.itdb_path);
         return -1;
     }
 

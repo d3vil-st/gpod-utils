@@ -1,11 +1,17 @@
+gpod-utils (1.4.2-1) UNRELEASED; urgency=medium
+
+  * rm and verify fixes
+
+ -- Ilya Kargapolov <d3vil.st@gmail.com>  Sun, 24 Aug 2025 14:25:47 +0200
+
 gpod-utils (1.4.1-1) UNRELEASED; urgency=medium
 
   * Mem fixes
 
- -- Ilya Kargapolov <ikargapolov@unknown>  Sun, 24 Aug 2025 14:25:47 +0200
+ -- Ilya Kargapolov <d3vil.st@gmail.com>  Sun, 24 Aug 2025 14:25:47 +0200
 
 gpod-utils (1.4.0-1) UNRELEASED; urgency=medium
 
   * Initial release. (Closes: #nnnn)  <nnnn is the bug number of your ITP>
 
- -- Ilya Kargapolov <ikargapolov@unknown>  Sun, 24 Aug 2025 14:25:47 +0200
+ -- Ilya Kargapolov <d3vil.st@gmail.com>  Sun, 24 Aug 2025 14:25:47 +0200

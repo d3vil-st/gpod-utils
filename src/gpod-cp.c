@@ -545,7 +545,6 @@ void gpod_cp_thread(gpointer args_, gpointer pool_args_)
         }
 
         g_mutex_unlock(&pargs->cp_lck);
-        g_free(coverart.data);
     }
 
 thread_cleanup:
@@ -553,7 +552,9 @@ thread_cleanup:
         g_error_free(error);
         error = NULL;
     }
-
+    coverart.size = 0;
+    g_free(coverart.data);
+    coverart.data = NULL;
     gpod_cp_ta_free(args);
 }
 

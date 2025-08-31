@@ -83,9 +83,9 @@ bool  db_add_track(sqlite3 *hdl_, const Itdb_Track* track_)
     "         );"
 
   char*  err = NULL;
-  char*  query = sqlite3_mprintf(QADD_TMPL, 
+  char*  query = sqlite3_mprintf(QADD_TMPL,
                                 track_->id, track_->ipod_path, track_->mediatype,
-                                track_->title, track_->artist, track_->album, track_->genre, track_->filetype, track_->composer, track_->grouping, track_->albumartist, track_->sort_artist, track_->sort_title, track_->sort_album, track_->sort_albumartist, track_->sort_composer, 
+                                track_->title, track_->artist, track_->album, track_->genre, track_->filetype, track_->composer, track_->grouping, track_->albumartist, track_->sort_artist, track_->sort_title, track_->sort_album, track_->sort_albumartist, track_->sort_composer,
                                 track_->size, track_->tracklen, track_->cd_nr, track_->cds, track_->track_nr, track_->tracks, track_->bitrate, track_->samplerate, track_->year, track_->time_added, track_->time_modified, track_->time_played, track_->rating, track_->playcount, track_->playcount2, track_->recent_playcount,
 				gpod_saved_cksum(track_),
 				track_->unk126, track_->unk132, track_->unk144, track_->unk148, track_->unk152, track_->unk179, track_->unk180, track_->unk196, track_->unk204, track_->unk220, track_->unk224, track_->unk228, track_->unk232, track_->unk236, track_->unk240, track_->unk244, track_->unk252
@@ -97,7 +97,7 @@ bool  db_add_track(sqlite3 *hdl_, const Itdb_Track* track_)
 
   int  ret;
   int  n = 5;
-  while (n--) 
+  while (n--)
   {
       if ( (ret = sqlite3_prepare_v2(hdl_, query, -1, &stmt, NULL)) != SQLITE_OK) {
           sqlite3_free(query);
@@ -157,7 +157,7 @@ typedef struct _TrkHash {
 
 static TrkHash*  hash_trk_init(const Itdb_Track* track_, bool cksum_)
 {
-   TrkHash*  o = malloc(sizeof(TrkHash)); 
+   TrkHash*  o = malloc(sizeof(TrkHash));
    memset(o, 0, sizeof(TrkHash));
 
    o->low = track_->size + track_->tracklen + track_->bitrate + track_->samplerate;
@@ -320,6 +320,7 @@ _track (Itdb_Track *track, bool verbose_, sqlite3* hdl_, TrkHashTbl* htbl_, bool
         json_object_add_int(jobj, "playcount", track->playcount);
         json_object_add_int(jobj, "playcount2", track->playcount2);
         json_object_add_int(jobj, "recent_playcount", track->recent_playcount);
+        json_object_add_boolean(jobj, "coverart", itdb_track_has_thumbnails(track));
         json_object_add_uint(jobj, "checksum", gpod_saved_cksum(track));
     }
     else
@@ -333,6 +334,7 @@ _track (Itdb_Track *track, bool verbose_, sqlite3* hdl_, TrkHashTbl* htbl_, bool
         json_object_add_string(jobj, "genre", track->genre);
         json_object_add_string(jobj, "albumartist", track->albumartist);
         json_object_add_int(jobj, "rating", track->rating);
+        json_object_add_boolean(jobj, "coverart", itdb_track_has_thumbnails(track));
         json_object_add_uint(jobj, "checksum", gpod_saved_cksum(track));
     }
 
@@ -378,7 +380,7 @@ _track (Itdb_Track *track, bool verbose_, sqlite3* hdl_, TrkHashTbl* htbl_, bool
                             track->userdata,
                             g_slist_append(g_hash_table_lookup(htbl_->low, track->userdata), track));
     }
-     
+
     return jobj;
 }
 
@@ -407,7 +409,7 @@ _playlist (Itdb_Playlist *playlist, sqlite3* hdl_, TrkHashTbl* htbl_, bool cksum
     json_object*  jtracks = json_object_new_array();
     for (it = playlist->members; it != NULL; it = it->next) {
 	Itdb_Track *track;
-	
+
 	track = (Itdb_Track *)it->data;
 	json_object_array_add(jtracks, _track(track, master, master ? hdl_ : NULL, master ? htbl_ : NULL, cksum_));
     }
@@ -530,7 +532,7 @@ main (int argc, char *argv[])
             itdb = itdb_parse_file(opts.itdb_path, &error);
             argtype = "file";
 
-            // the Device info is /mnt/iPod_Control/Device - if we've been given a db 
+            // the Device info is /mnt/iPod_Control/Device - if we've been given a db
             // location /mnt/iPod_Control/iTunes/iTunesDB we can figure this out
 
             char*  dmp;
@@ -577,7 +579,7 @@ main (int argc, char *argv[])
 #endif
 
 /*
-    { 
+    {
      "playlists": [
        {
          "name": "iPod",
@@ -683,7 +685,7 @@ main (int argc, char *argv[])
         json_object_object_add(jobj, "ipod_analysis", janalysis);
     }
 
-    g_print("%s\n", json_object_to_json_string(jobj)); 
+    g_print("%s\n", json_object_to_json_string(jobj));
     json_object_put(jobj);
 
     if (itdev) {
