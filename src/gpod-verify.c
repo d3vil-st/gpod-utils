@@ -54,6 +54,7 @@ static Itdb_Track*  _track(const char* file_, char** err_, Itdb_IpodGeneration i
 {
     struct gpod_ff_media_info  mi;
     gpod_ff_media_info_init(&mi);
+    mi.native_flac = true;  // flac already on iPod is there intentionally
     struct gpod_ff_coverart coverart;
     mi.coverart = coverart;
 

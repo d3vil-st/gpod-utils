@@ -1,3 +1,14 @@
+gpod-utils (1.5.6) UNRELEASED; urgency=medium
+
+  * Add native FLAC passthrough to gpod-cp (-L/--native-flac)
+
+    For iPod firmware with native FLAC playback, copy flac files as is
+    without transcoding, behaving the same as alac; out-of-spec sources
+    (>48kHz, surround) are still transcoded. Off by default.
+    gpod-verify accepts flac tracks already on the iPod.
+
+ -- Ilya Kargapolov <d3vil.st@gmail.com>  Wed, 28 Oct 2026 01:23:00 +0100
+
 gpod-utils (1.5.5) UNRELEASED; urgency=medium
 
   * Fix compatibility with ffmpeg 9 due to deprecation of supported_samplerates

@@ -241,6 +241,8 @@ The quality of automatic audio conversions can be controlled by `-q` with values
 
 Transcodes preserve the source characteristics where the `iPod` allows: the input sample rate is kept for sources ≤48000 Hz (no forced resample), bit-depth is preserved for high resolution sources when the encoder supports it (eg 24-bit `flac` to `alac` stays 24-bit/s32p rather than degrading to 16-bit), and mono stays mono (no stereo upmix) with surround downmixed to stereo.  `iPod` audio only support up to 48000 and we perform automatic sample rate conversions when the source exceeds it; out-of-spec `alac` sources (eg 96kHz or surround) are transcoded to a supported rate/layout rather than copied verbatim.  Re-sampled audio files are not directly equivalent to `ffmpeg`, as verified by per-frame hash `ffmpeg -i foo.mp3 -f framehash foo.sha256` or file stream hash `ffmpeg -i foo.mp3 -c:a copy -bsf:a null -f hash -`, although the non sample rate conversions are equivalent.
 
+For `iPod` firmware with native `flac` playback, `-L`/`--native-flac` copies `flac` files as is without transcoding, the same as `alac`: sources within the `iPod` limits (≤48000 Hz, mono/stereo) are copied verbatim and out-of-spec sources are still transcoded via the selected encoder.  Stock Apple firmware cannot play `flac`, so this is off by default.  `gpod-verify` always accepts `flac` files already on the `iPod`.
+
 Embedded cover art (including `png`, converted to `jpeg`) is carried across: attached to the `iTunesDB` as thumbnails using device-specific resolution caps (320x320 for `iPod Classic`, 200x200 for `iPod Video`, 300x300 otherwise, only downscaling when the source exceeds the cap) and, for transcoded files, embedded into the output `.m4a` itself.
 
 ### Podcasts and audiobooks

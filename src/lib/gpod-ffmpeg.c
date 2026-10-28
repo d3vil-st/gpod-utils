@@ -850,13 +850,18 @@ int  gpod_ff_scan(struct gpod_ff_media_info *info_, const char *file_, Itdb_Ipod
                                              info_->audio.channels   <= 2);
                 break;
 
-    // this block of types will needs transcoding to go onto iPod
-
+            /* only natively supported on iPod fw with flac support, otherwise
+             * needs transcoding
+             */
             case AV_CODEC_ID_FLAC:
+                info_->supported_ipod_fmt = (info_->native_flac &&
+                                             info_->audio.samplerate <= GPOD_MAX_SAMPLERATE &&
+                                             info_->audio.channels   <= 2);
 
                 extra_md_map = md_map_vorbis;
                 break;
 
+    // this block of types will needs transcoding to go onto iPod
 
             case AV_CODEC_ID_APE:
                 break;

@@ -59,6 +59,7 @@ struct {
     bool enc_fallback;
     enum gpod_ff_transcode_quality  xcode_quality;
     bool  sync_meta;
+    bool  native_flac;
     bool  artwork;
     time_t  time_added;
     bool  sanitize;
@@ -79,6 +80,7 @@ struct {
    .enc_fallback = true,
    .xcode_quality = GPOD_FF_XCODE_VBR1,
    .sync_meta = true,
+   .native_flac = false,
    .artwork = true,
    .time_added = 0,
    .sanitize = true,
@@ -156,6 +158,7 @@ _track(const char* file_, struct gpod_ff_transcode_ctx* xfrm_, uint64_t uuid_, I
 {
     struct gpod_ff_media_info  mi;
     gpod_ff_media_info_init(&mi);
+    mi.native_flac = opts.native_flac;
 
     const char*  file = file_;
     if (gpod_ff_scan(&mi, file, idevice_, err_) < 0) {
@@ -771,6 +774,7 @@ void  _usage(const char* argv0_)
 	     "    -q  --encoder-quality          <0-9>                    VBR level (ffmpeg -q:a 0-9)\n"
 	     "                                   <128,160,192,256,320>    CBR 128..320k (not applicable for alac)\n"
 	     "    -d  --encoder-metadata-sync    <Y|N>                    sync metadata - default: Y\n"
+	     "    -L  --native-flac                                       copy flac as is without xcode (like alac), for iPod fw with flac support\n"
 	     "\n"
 	     "  Playlist\n"
 	     "    -P  --playlist-name            <name>                   generate specific 'recently added' playlist - if not specified, default 'Recent' playlists are generated\n"
@@ -812,6 +816,7 @@ int main (int argc, char *argv[])
 	{"disable-encoder-fallback", 	0, 0, 'E' },
 	{"encoder-quality", 		1, 0, 'q' },
 	{"encoder-metadata-sync", 	2, 0, 'd' },
+	{"native-flac", 		0, 0, 'L' },
 
 	{"playlist-name", 		1, 0, 'P' },
 	{"playlist-limit", 		1, 0, 'n' },
@@ -869,6 +874,10 @@ int main (int argc, char *argv[])
 
 	    case 'a':
 	        opts.artwork = false;
+		break;
+
+	    case 'L':
+	        opts.native_flac = true;
 		break;
 
             case 'e':
