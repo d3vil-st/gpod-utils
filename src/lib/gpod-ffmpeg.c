@@ -846,7 +846,8 @@ int  gpod_ff_scan(struct gpod_ff_media_info *info_, const char *file_, Itdb_Ipod
                 break;
 
             case AV_CODEC_ID_ALAC:
-                info_->supported_ipod_fmt = (info_->audio.samplerate <= GPOD_MAX_SAMPLERATE &&
+                info_->supported_ipod_fmt = (!info_->xcode_lossless &&
+                                             info_->audio.samplerate <= GPOD_MAX_SAMPLERATE &&
                                              info_->audio.channels   <= 2);
                 break;
 
@@ -854,7 +855,7 @@ int  gpod_ff_scan(struct gpod_ff_media_info *info_, const char *file_, Itdb_Ipod
              * needs transcoding
              */
             case AV_CODEC_ID_FLAC:
-                info_->supported_ipod_fmt = (info_->native_flac &&
+                info_->supported_ipod_fmt = (info_->native_flac && !info_->xcode_lossless &&
                                              info_->audio.samplerate <= GPOD_MAX_SAMPLERATE &&
                                              info_->audio.channels   <= 2);
 

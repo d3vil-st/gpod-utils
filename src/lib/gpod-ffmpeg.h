@@ -124,6 +124,7 @@ struct gpod_ff_media_info
     bool  has_audio; // is audio file
     bool  supported_ipod_fmt;  // mp3, m4a, mp4/m4v
     bool  native_flac;  // input: treat flac as iPod supported (no xcode), for fw with flac support
+    bool  xcode_lossless;  // input: treat lossless (alac, native flac) as unsupported so it is transcoded
 
     struct gpod_ff_audio  audio;
     struct gpod_ff_video  video;

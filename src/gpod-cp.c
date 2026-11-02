@@ -61,6 +61,7 @@ struct {
     bool  xcode_quality_set;
     bool  sync_meta;
     bool  native_flac;
+    bool  xcode_lossless;
     bool  artwork;
     time_t  time_added;
     bool  sanitize;
@@ -83,6 +84,7 @@ struct {
    .xcode_quality_set = false,
    .sync_meta = true,
    .native_flac = false,
+   .xcode_lossless = false,
    .artwork = true,
    .time_added = 0,
    .sanitize = true,
@@ -161,6 +163,8 @@ _track(const char* file_, struct gpod_ff_transcode_ctx* xfrm_, uint64_t uuid_, I
     struct gpod_ff_media_info  mi;
     gpod_ff_media_info_init(&mi);
     mi.native_flac = opts.native_flac;
+    // re-encoding alac with alac gains nothing
+    mi.xcode_lossless = opts.xcode_lossless && opts.enc != GPOD_FF_ENC_ALAC;
 
     const char*  file = file_;
     if (gpod_ff_scan(&mi, file, idevice_, err_) < 0) {
@@ -794,6 +798,7 @@ void  _usage(const char* argv0_)
 	     "                                   <128,160,192,256,320>    CBR 128..320k (not applicable for alac)\n"
 	     "    -d  --encoder-metadata-sync    <Y|N>                    sync metadata - default: Y\n"
 	     "    -L  --native-flac                                       copy flac as is without xcode (like alac), for iPod fw with flac support\n"
+	     "    -X  --transcode-lossless                                transcode iPod supported lossless (alac, -L flac) with the encoder too\n"
 	     "\n"
 	     "  Playlist\n"
 	     "    -P  --playlist-name            <name>                   generate specific 'recently added' playlist - if not specified, default 'Recent' playlists are generated\n"
@@ -836,6 +841,7 @@ int main (int argc, char *argv[])
 	{"encoder-quality", 		1, 0, 'q' },
 	{"encoder-metadata-sync", 	2, 0, 'd' },
 	{"native-flac", 		0, 0, 'L' },
+	{"transcode-lossless", 		0, 0, 'X' },
 
 	{"playlist-name", 		1, 0, 'P' },
 	{"playlist-limit", 		1, 0, 'n' },
@@ -897,6 +903,10 @@ int main (int argc, char *argv[])
 
 	    case 'L':
 	        opts.native_flac = true;
+		break;
+
+	    case 'X':
+	        opts.xcode_lossless = true;
 		break;
 
             case 'e':

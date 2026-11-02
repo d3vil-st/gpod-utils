@@ -55,6 +55,9 @@ export PKG_CONFIG_PATH=%{ffmpeg_prefix}/lib/pkgconfig
 %{_bindir}/gpod-verify
 
 %changelog
+* Mon Nov 02 2026 Ilya Kargapolov <d3vil.st@gmail.com> - 1.6.1-1
+- gpod-cp: add -X/--transcode-lossless
+
 * Mon Nov 02 2026 Ilya Kargapolov <d3vil.st@gmail.com> - 1.6.0-1
 - Link a static ffmpeg 9.1 (new native AAC encoder); prefer it over mp3 when libfdk_aac is unavailable
 

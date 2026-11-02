@@ -1,3 +1,14 @@
+gpod-utils (1.6.1) UNRELEASED; urgency=medium
+
+  * gpod-cp: add -X/--transcode-lossless
+
+    Transcode lossless sources the iPod plays natively (alac, and flac
+    with -L) with the selected encoder instead of copying them as is, so
+    eg -e aac-ffmpeg -X stores a lossless library as aac. mp3/aac sources
+    are still copied as is; ignored with -e alac.
+
+ -- Ilya Kargapolov <d3vil.st@gmail.com>  Mon, 02 Nov 2026 21:00:00 +0100
+
 gpod-utils (1.6.0) UNRELEASED; urgency=medium
 
   * Build release packages against a bundled static ffmpeg 9.1
