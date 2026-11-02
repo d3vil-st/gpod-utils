@@ -1036,11 +1036,27 @@ void  gpod_ff_transcode_ctx_init(struct gpod_ff_transcode_ctx* obj_,
         obj_->audio_opts.quality_scale_factor = 0;
         break;
 
+      case GPOD_FF_ENC_AAC_AT:
+	obj_->audio_opts.codec_id = AV_CODEC_ID_AAC;
+	obj_->audio_opts.enc_name = "aac_at";
+	obj_->extn = ".m4a";
+        break;
+
       case GPOD_FF_ENC_MP3:
-      default:
 	obj_->audio_opts.codec_id = AV_CODEC_ID_MP3;
 	obj_->audio_opts.enc_name = "libmp3lame";
 	obj_->extn = ".mp3";
+        break;
+
+      case GPOD_FF_ENC_MAX:
+      default:
+	/* requested encoder unavailable and fallback disabled: leave enc_name
+	 * unset so any track that needs transcoding fails rather than silently
+	 * being encoded with some other codec
+	 */
+	obj_->audio_opts.codec_id = AV_CODEC_ID_NONE;
+	obj_->audio_opts.enc_name = NULL;
+	obj_->extn = ".tmp";
     }
 
     obj_->sync_meta = sync_meta_;

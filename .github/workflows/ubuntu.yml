@@ -25,12 +25,23 @@ jobs:
             build-essential clang clang-tools autotools-dev autoconf libtool \
             libgpod-dev \
             libglib2.0-dev \
-            libavcodec-dev libavformat-dev libavfilter-dev libswscale-dev libavutil-dev \
+            git pkg-config nasm libmp3lame-dev zlib1g-dev \
             libjson-c-dev dh-make
+
+      - name: Cache ffmpeg
+        id: ffmpeg-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/gpod-ffmpeg
+          key: ffmpeg-${{ matrix.os }}-${{ hashFiles('ci/build-ffmpeg.sh') }}
+
+      - name: Build ffmpeg
+        if: steps.ffmpeg-cache.outputs.cache-hit != 'true'
+        run: ci/build-ffmpeg.sh "$HOME/gpod-ffmpeg"
 
       - name: Build deb
         run: |
-          fakeroot debian/rules binary
+          FFMPEG_PREFIX="$HOME/gpod-ffmpeg" fakeroot debian/rules binary
 
       - name: Get debs
         run: |

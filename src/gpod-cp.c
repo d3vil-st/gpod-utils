@@ -58,6 +58,7 @@ struct {
     enum gpod_ff_enc  enc;
     bool enc_fallback;
     enum gpod_ff_transcode_quality  xcode_quality;
+    bool  xcode_quality_set;
     bool  sync_meta;
     bool  native_flac;
     bool  artwork;
@@ -79,6 +80,7 @@ struct {
    .enc = GPOD_FF_ENC_FDKAAC,
    .enc_fallback = true,
    .xcode_quality = GPOD_FF_XCODE_VBR1,
+   .xcode_quality_set = false,
    .sync_meta = true,
    .native_flac = false,
    .artwork = true,
@@ -677,6 +679,23 @@ static const char* _avversion_to_string(char* buf_, size_t bufsz_, unsigned ver_
     return buf_;
 }
 
+/* requested encoder unavailable: prefer ffmpeg's native aac (fully featured
+ * since ffmpeg 9.1) over mp3; native aac is driven at a fixed bitrate unless
+ * the user asked for a specific quality
+ */
+static void  _enc_fallback()
+{
+    if (gpod_ff_enc_supported(GPOD_FF_ENC_AAC)->supported) {
+        opts.enc = GPOD_FF_ENC_AAC;
+        if (!opts.xcode_quality_set) {
+            opts.xcode_quality = GPOD_FF_XCODE_CBR256;
+        }
+    }
+    else {
+        opts.enc = GPOD_FF_ENC_MP3;
+    }
+}
+
 void  _usage(const char* argv0_)
 {
     char *basename = g_path_get_basename(argv0_);
@@ -770,7 +789,7 @@ void  _usage(const char* argv0_)
 	     "\n"
 	     "  Encoding (forced xcode of iPod unsupported formats)\n"
 	     "    -e  --encoder                  <%s>           transcode via ffmpeg/libavcodec <%s> - default: %s\n"
-	     "    -E  --disable-encoder-fallback                          disable encoding fallback to mp3, when no fdkaac available\n"
+	     "    -E  --disable-encoder-fallback                          disable encoder fallback (aac-ffmpeg, then mp3)\n"
 	     "    -q  --encoder-quality          <0-9>                    VBR level (ffmpeg -q:a 0-9)\n"
 	     "                                   <128,160,192,256,320>    CBR 128..320k (not applicable for alac)\n"
 	     "    -d  --encoder-metadata-sync    <Y|N>                    sync metadata - default: Y\n"
@@ -846,7 +865,7 @@ int main (int argc, char *argv[])
 
     gpod_ff_init();
     if (!gpod_ff_enc_supported(opts.enc)->supported) {
-        opts.enc = GPOD_FF_ENC_MP3;
+        _enc_fallback();
     }
 
 
@@ -920,9 +939,11 @@ int main (int argc, char *argv[])
 		}
 		const unsigned  q = *arg ? (unsigned)atol(arg) : 0;
 
-		if (strncasecmp(optarg, "vbr", 3) == 0) {
+		// a bare number is a VBR level, as documented in the usage
+		if (arg == optarg || strncasecmp(optarg, "vbr", 3) == 0) {
 		    if (q <= GPOD_FF_XCODE_VBR_MAX) {
 			opts.xcode_quality = (enum gpod_ff_transcode_quality)q;
+			opts.xcode_quality_set = true;
 		    }
 		}
 
@@ -938,6 +959,7 @@ int main (int argc, char *argv[])
 		        default:
 			   ; // noop
 		    }
+		    opts.xcode_quality_set = opts.xcode_quality > GPOD_FF_XCODE_VBR_MAX;
 		}
 	    } break;
 
@@ -1162,13 +1184,14 @@ int main (int argc, char *argv[])
      */
     if (!gpod_ff_enc_supported(opts.enc)->supported)
     {
-	extra = "";
-	opts.enc = GPOD_FF_ENC_MAX;
 	if (opts.enc_fallback) {
-	    opts.enc = GPOD_FF_ENC_MP3;
-	    extra = ", falling back to MP3 encoding";
+	    _enc_fallback();
+	    g_printf("requested transcoding NOT available, falling back to %s encoding\n", gpod_ff_enc_supported(opts.enc)->name);
 	}
-	g_printf("requested transcoding NOT available%s\n", extra);
+	else {
+	    opts.enc = GPOD_FF_ENC_MAX;
+	    g_printf("requested transcoding NOT available, tracks requiring transcoding will fail\n");
+	}
     }
 
     guint  then = g_get_monotonic_time();

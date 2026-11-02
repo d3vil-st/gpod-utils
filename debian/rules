@@ -15,6 +15,14 @@ export DEB_CFLAGS_MAINT_APPEND  = -Wno-error=format-security
 #export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
 
 
+# FFMPEG_PREFIX=<dir> links the static ffmpeg built by ci/build-ffmpeg.sh
+ifneq ($(FFMPEG_PREFIX),)
+export PKG_CONFIG_PATH := $(FFMPEG_PREFIX)/lib/pkgconfig
+override_dh_auto_configure:
+	dh_auto_configure -- --enable-static-ffmpeg
+endif
+
+
 %:
 	dh $@
 

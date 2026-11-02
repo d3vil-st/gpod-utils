@@ -1,3 +1,24 @@
+gpod-utils (1.6.0) UNRELEASED; urgency=medium
+
+  * Build release packages against a bundled static ffmpeg 9.1
+
+    No distro ships ffmpeg 9.1 yet and its rewritten native aac encoder
+    (NMR coder) is the first one on par with libfdk_aac, which cannot be
+    redistributed. ci/build-ffmpeg.sh builds a minimal static ffmpeg that
+    the deb/rpm link via ./configure --enable-static-ffmpeg.
+
+  * gpod-cp: fall back to native aac (CBR 256k) before mp3 when the
+    requested encoder is unavailable
+
+  * gpod-cp: -E/--disable-encoder-fallback no longer silently encodes to
+    mp3; tracks that need transcoding fail instead. aac_at no longer
+    selects the mp3 encoder
+
+  * gpod-cp: -q accepts a bare VBR level (eg -q 2) as documented, not
+    only vbr2
+
+ -- Ilya Kargapolov <d3vil.st@gmail.com>  Mon, 02 Nov 2026 20:00:00 +0100
+
 gpod-utils (1.5.6) UNRELEASED; urgency=medium
 
   * Add native FLAC passthrough to gpod-cp (-L/--native-flac)

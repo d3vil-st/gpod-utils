@@ -229,7 +229,7 @@ static int open_output_file(struct gpod_ff_transcode_ctx* target_,
 
     /* Find the encoder to be used by its name. */
     if (target_->audio_opts.enc_name == NULL) {
-	*err_ = strdup("encoder not specified");
+	*err_ = strdup("no encoder available (requested encoder unsupported and fallback disabled)");
 	return AVERROR_ENCODER_NOT_FOUND;
     }
 
