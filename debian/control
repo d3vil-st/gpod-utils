@@ -40,4 +40,6 @@ Replaces: gpod-utils
 Description: Command line tools using 'libgpod' to access 'iPod' data (shared ffmpeg).
  Same tools as gpod-utils, linked against one private copy of ffmpeg's shared
  libraries (/usr/lib/<triplet>/gpod-utils/libav*-gpod.so) instead of a static
- ffmpeg in every tool - a much smaller install.
+ ffmpeg in every tool - a much smaller install. ffmpeg and ffprobe programs
+ built on the same libs are installed alongside them (not on PATH) for
+ nasTune.

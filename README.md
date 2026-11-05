@@ -248,7 +248,7 @@ PKG_CONFIG_PATH=/opt/gpod-ffmpeg/lib/pkgconfig ./configure --enable-static-ffmpe
 make
 ```
 
-Each release also ships a `gpod-utils-shared` `deb`/`rpm` - the same tools linked against one private copy of the minimal `ffmpeg` as shared libraries (`/usr/lib/<triplet>/gpod-utils/libav*-gpod.so`, the `-gpod` suffix keeps them apart from the distro `libav*`) instead of a static `ffmpeg` in every tool: ~9MB installed rather than ~52MB, useful for containers and small NAS boxes.  The two packages conflict - install one.  To build that way locally:
+Each release also ships a `gpod-utils-shared` `deb`/`rpm` - the same tools linked against one private copy of the minimal `ffmpeg` as shared libraries (`/usr/lib/<triplet>/gpod-utils/libav*-gpod.so`, the `-gpod` suffix keeps them apart from the distro `libav*`) instead of a static `ffmpeg` in every tool: ~9MB installed rather than ~52MB, useful for containers and small NAS boxes.  The two packages conflict - install one.  `gpod-utils-shared` also carries `ffmpeg`/`ffprobe` programs built on those libraries (with a few extra components: `flac` encoding, `image2` + `scale` for cover art) in the same private directory, off `PATH` - [nasTune](https://github.com/d3vil-st/nasTune) uses them for playback transcoding and artwork instead of the distro `ffmpeg`.  To build that way locally:
 
 ```
 ci/build-ffmpeg.sh /opt/gpod-ffmpeg-shared shared

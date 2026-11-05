@@ -10,7 +10,12 @@
 #
 # "shared" builds private shared libs instead (libavcodec-gpod.so.N, …; the
 # -gpod suffix keeps them apart from distro ffmpeg) for the gpod-utils-shared
-# package, where all tools share one copy instead of each embedding ~9 MB:
+# package, where all tools share one copy instead of each embedding ~9 MB.
+# It also builds ffmpeg/ffprobe programs on those libs, with the few extra
+# components nasTune (https://github.com/d3vil-st/nasTune) needs - flac
+# encoding (ALAC playback), image2 + scale (cover art → jpeg), dsf/webp - so
+# it can use them instead of the distro ffmpeg. They find the libs via
+# $ORIGIN, so they must be installed next to them:
 #
 #   ci/build-ffmpeg.sh /opt/gpod-ffmpeg-shared shared
 #   PKG_CONFIG_PATH=/opt/gpod-ffmpeg-shared/lib/pkgconfig \
@@ -21,8 +26,20 @@ set -eu
 
 PREFIX=${1:?usage: $0 <prefix> [static|shared]}
 case "${2:-static}" in
-  static) LINK="--enable-static --disable-shared --enable-pic" ;;
-  shared) LINK="--disable-static --enable-shared --build-suffix=-gpod" ;;
+  static)
+    LINK="--enable-static --disable-shared --enable-pic"
+    set --
+    ;;
+  shared)
+    LINK="--disable-static --enable-shared --build-suffix=-gpod"
+    # programs find the libs next to them; set via the environment because
+    # configure re-evaluates --extra-ldexeflags, mangling a quoted $ORIGIN
+    export LD_RUN_PATH='$ORIGIN'
+    set -- --enable-ffmpeg --enable-ffprobe --disable-ffplay \
+      --enable-encoder=flac --enable-muxer=image2 \
+      --enable-demuxer=dsf --enable-decoder=webp --enable-parser=webp \
+      --enable-filter=scale,format,null,aresample,aformat,anull
+    ;;
   *) echo "usage: $0 <prefix> [static|shared]" >&2; exit 1 ;;
 esac
 # release/9.1 - bump to the n9.1 tag once it is cut
@@ -62,6 +79,7 @@ cd "$SRC"
   --enable-parser=aac,aac_latm,ac3,flac,mpegaudio,opus,vorbis,h264,mpeg4video,mjpeg,png,bmp,gif \
   --enable-encoder=aac,alac,libmp3lame,mjpeg \
   --enable-muxer=adts,aiff,flac,ipod,mov,mp3,mp4,wav \
-  --enable-bsf=aac_adtstoasc,null
+  --enable-bsf=aac_adtstoasc,null \
+  "$@"
 make -j"$JOBS"
 make install

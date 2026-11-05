@@ -50,7 +50,9 @@ ifneq ($(FFMPEG_SHARED_PREFIX),)
 	dh_auto_build
 	dh_auto_install --destdir=debian/gpod-utils-shared
 	install -d debian/gpod-utils-shared$(GPOD_FF_LIBDIR)
-	cp -a $(FFMPEG_SHARED_PREFIX)/lib/lib*-gpod.so.* debian/gpod-utils-shared$(GPOD_FF_LIBDIR)/
+	cp -a $(FFMPEG_SHARED_PREFIX)/lib/lib*-gpod.so.* \
+	  $(FFMPEG_SHARED_PREFIX)/bin/ffmpeg $(FFMPEG_SHARED_PREFIX)/bin/ffprobe \
+	  debian/gpod-utils-shared$(GPOD_FF_LIBDIR)/
 endif
 
 # the bundled libav*-gpod are private (no shlibs/symbols for other packages)

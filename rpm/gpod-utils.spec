@@ -41,7 +41,9 @@ iPod tracks from the command line.
 %if 0%{?ffmpeg_shared_prefix:1}
 
 This variant links all tools against one private copy of ffmpeg's shared
-libraries instead of a static ffmpeg in every tool.
+libraries instead of a static ffmpeg in every tool. ffmpeg and ffprobe
+programs built on the same libraries are installed alongside them (not on
+PATH) for nasTune.
 %endif
 
 %prep
@@ -64,7 +66,9 @@ export PKG_CONFIG_PATH=%{ffmpeg_prefix}/lib/pkgconfig
 %make_install
 %if 0%{?ffmpeg_shared_prefix:1}
 install -d %{buildroot}%{gpod_ff_libdir}
-cp -a %{ffmpeg_shared_prefix}/lib/lib*-gpod.so.* %{buildroot}%{gpod_ff_libdir}/
+cp -a %{ffmpeg_shared_prefix}/lib/lib*-gpod.so.* \
+      %{ffmpeg_shared_prefix}/bin/ffmpeg %{ffmpeg_shared_prefix}/bin/ffprobe \
+      %{buildroot}%{gpod_ff_libdir}/
 %endif
 
 %files
@@ -82,6 +86,9 @@ cp -a %{ffmpeg_shared_prefix}/lib/lib*-gpod.so.* %{buildroot}%{gpod_ff_libdir}/
 %endif
 
 %changelog
+* Thu Nov 05 2026 Ilya Kargapolov <d3vil.st@gmail.com> - 1.6.3-1
+- gpod-utils-shared: ship private ffmpeg/ffprobe programs for nasTune
+
 * Thu Nov 05 2026 Ilya Kargapolov <d3vil.st@gmail.com> - 1.6.2-1
 - New gpod-utils-shared variant: tools share one private shared ffmpeg
 - gpod-tag/gpod-playlist no longer link ffmpeg

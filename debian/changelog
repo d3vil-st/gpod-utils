@@ -1,3 +1,14 @@
+gpod-utils (1.6.3) UNRELEASED; urgency=medium
+
+  * gpod-utils-shared: also ship ffmpeg and ffprobe programs built on the
+    private libav*-gpod libs, in /usr/lib/<triplet>/gpod-utils (not on
+    PATH, found via $ORIGIN rpath). The shared ffmpeg build adds flac
+    encoding, image2 + scale/aresample filters and dsf/webp for nasTune,
+    which uses them instead of building its own ffmpeg. The static
+    gpod-utils package is unchanged.
+
+ -- Ilya Kargapolov <d3vil.st@gmail.com>  Thu, 05 Nov 2026 23:45:00 +0100
+
 gpod-utils (1.6.2) UNRELEASED; urgency=medium
 
   * New gpod-utils-shared package: same tools linked against one private
