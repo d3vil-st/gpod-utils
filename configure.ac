@@ -37,13 +37,23 @@ AM_CONDITIONAL([HAVE_SQLITE3], [test "x$use_sqlite3" = xyes])
 AC_ARG_ENABLE(static-ffmpeg,
 	AS_HELP_STRING([--enable-static-ffmpeg],[link ffmpeg statically (point PKG_CONFIG_PATH at its prefix)]),
 	[ static_ffmpeg="${enableval}" ], [ static_ffmpeg=no ] )
-FFMPEG_MODULES="libavformat >= 58.20.100 libavcodec >= 58.35.100 libavutil >= 56.22.100 libswresample >= 3.3.100 libswscale"
+AC_ARG_WITH(ffmpeg-suffix,
+	AS_HELP_STRING([--with-ffmpeg-suffix=SFX],[ffmpeg built with --build-suffix=SFX, eg -gpod (ci/build-ffmpeg.sh <prefix> shared)]),
+	[ ffsfx="${withval}" ], [ ffsfx= ] )
+AS_IF([test "x$ffsfx" = xno || test "x$ffsfx" = xyes], [ffsfx=])
+FFMPEG_MODULES="libavformat$ffsfx >= 58.20.100 libavcodec$ffsfx >= 58.35.100 libavutil$ffsfx >= 56.22.100 libswresample$ffsfx >= 3.3.100 libswscale$ffsfx"
 AS_IF([test "x$static_ffmpeg" = xyes],
       [PKG_CHECK_MODULES_STATIC(FFMPEG, [$FFMPEG_MODULES])],
       [PKG_CHECK_MODULES(FFMPEG, [$FFMPEG_MODULES])])
-PKG_CHECK_EXISTS([libavcodec >= 59.24.100],
+PKG_CHECK_EXISTS([libavcodec$ffsfx >= 59.24.100],
 		 [AC_DEFINE([HAVE_FF5_CH_LAYOUT], 1,
 			    [Defined if ffmpeg/libavcodec defines new 5.1.x ch_layout])])
+AC_ARG_WITH(ffmpeg-rpath,
+	AS_HELP_STRING([--with-ffmpeg-rpath=DIR],[run-time path of a private shared ffmpeg (ci/build-ffmpeg.sh <prefix> shared)]),
+	[ ffmpeg_rpath="${withval}" ], [ ffmpeg_rpath= ] )
+dnl DT_RPATH, not RUNPATH: it also covers the libav* libs' own dependencies on each other
+AS_IF([test -n "$ffmpeg_rpath" && test "x$ffmpeg_rpath" != xno],
+      [FFMPEG_LIBS="$FFMPEG_LIBS -Wl,--disable-new-dtags,-rpath,$ffmpeg_rpath"])
 AC_SUBST(FFMPEG_CFLAGS)
 AC_SUBST(FFMPEG_LIBS)
 

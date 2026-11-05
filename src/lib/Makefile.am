@@ -7,4 +7,4 @@ noinst_LIBRARIES = libgpod-utils.a
 
 libgpod_utils_a_CPPFLAGS = -DWANT_GPOD_HASH
 libgpod_utils_a_CFLAGS = $(FFMPEG_CFLAGS) $(AM_CFLAGS)
-libgpod_utils_a_SOURCES = gpod-utils.c sha1.c gpod-ffmpeg.c gpod-ffmpeg-transcode.c
+libgpod_utils_a_SOURCES = gpod-utils.c gpod-utils-ff.c sha1.c gpod-ffmpeg.c gpod-ffmpeg-transcode.c

@@ -1,3 +1,17 @@
+gpod-utils (1.6.2) UNRELEASED; urgency=medium
+
+  * New gpod-utils-shared package: same tools linked against one private
+    shared build of the minimal ffmpeg (/usr/lib/<triplet>/gpod-utils,
+    libav*-gpod.so) instead of a static ffmpeg in each tool, ~9MB installed
+    instead of ~52MB. Conflicts with gpod-utils.
+    ci/build-ffmpeg.sh <prefix> shared; configure --with-ffmpeg-suffix and
+    --with-ffmpeg-rpath.
+  * gpod-tag and gpod-playlist no longer link ffmpeg: the audio-hash helpers
+    moved out of gpod-utils.c, whose reference pulled the static ffmpeg into
+    every tool.
+
+ -- Ilya Kargapolov <d3vil.st@gmail.com>  Thu, 05 Nov 2026 23:00:00 +0100
+
 gpod-utils (1.6.1) UNRELEASED; urgency=medium
 
   * gpod-cp: add -X/--transcode-lossless

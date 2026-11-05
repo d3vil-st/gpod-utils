@@ -8,10 +8,23 @@
 #   ci/build-ffmpeg.sh /opt/gpod-ffmpeg
 #   PKG_CONFIG_PATH=/opt/gpod-ffmpeg/lib/pkgconfig ./configure --enable-static-ffmpeg
 #
+# "shared" builds private shared libs instead (libavcodec-gpod.so.N, …; the
+# -gpod suffix keeps them apart from distro ffmpeg) for the gpod-utils-shared
+# package, where all tools share one copy instead of each embedding ~9 MB:
+#
+#   ci/build-ffmpeg.sh /opt/gpod-ffmpeg-shared shared
+#   PKG_CONFIG_PATH=/opt/gpod-ffmpeg-shared/lib/pkgconfig \
+#     ./configure --with-ffmpeg-suffix=-gpod --with-ffmpeg-rpath=/usr/lib/<triplet>/gpod-utils
+#
 # Build deps: gcc make pkg-config git, libmp3lame dev, zlib dev, nasm (x86 only)
 set -eu
 
-PREFIX=${1:?usage: $0 <prefix>}
+PREFIX=${1:?usage: $0 <prefix> [static|shared]}
+case "${2:-static}" in
+  static) LINK="--enable-static --disable-shared --enable-pic" ;;
+  shared) LINK="--disable-static --enable-shared --build-suffix=-gpod" ;;
+  *) echo "usage: $0 <prefix> [static|shared]" >&2; exit 1 ;;
+esac
 # release/9.1 - bump to the n9.1 tag once it is cut
 FFMPEG_REPO=${FFMPEG_REPO:-https://git.ffmpeg.org/ffmpeg.git}
 FFMPEG_REF=${FFMPEG_REF:-f8e017db6bdac7e1d40ce24a286cf91149513877}
@@ -35,7 +48,7 @@ esac
 cd "$SRC"
 ./configure \
   --prefix="$PREFIX" \
-  --enable-static --disable-shared --enable-pic \
+  $LINK \
   --disable-programs --disable-doc --disable-network --disable-autodetect \
   --disable-everything \
   $ASM \

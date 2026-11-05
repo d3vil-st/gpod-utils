@@ -32,7 +32,9 @@ jobs:
             rpm-build rpmdevtools
 
       - name: Build ffmpeg
-        run: ci/build-ffmpeg.sh /opt/gpod-ffmpeg
+        run: |
+          ci/build-ffmpeg.sh /opt/gpod-ffmpeg
+          ci/build-ffmpeg.sh /opt/gpod-ffmpeg-shared shared
 
       - name: Set version
         run: echo "VERSION=$(echo ${{ github.ref_name }} | sed 's/^v//')" >> $GITHUB_ENV
@@ -48,6 +50,7 @@ jobs:
           rpmdev-setuptree
           cp gpod-utils-${VERSION}.tar.gz ~/rpmbuild/SOURCES/
           rpmbuild -ba rpm/gpod-utils.spec --define "_version ${VERSION}" --define "ffmpeg_prefix /opt/gpod-ffmpeg"
+          rpmbuild -bb rpm/gpod-utils.spec --define "_version ${VERSION}" --define "ffmpeg_shared_prefix /opt/gpod-ffmpeg-shared"
 
       - name: Collect RPMs
         run: find ~/rpmbuild/RPMS -name "gpod-utils-*.rpm" ! -name "*debug*" -exec cp {} . \;

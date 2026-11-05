@@ -15,16 +15,50 @@ export DEB_CFLAGS_MAINT_APPEND  = -Wno-error=format-security
 #export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
 
 
-# FFMPEG_PREFIX=<dir> links the static ffmpeg built by ci/build-ffmpeg.sh
+# FFMPEG_PREFIX=<dir>         gpod-utils links the static ffmpeg built by
+#                             `ci/build-ffmpeg.sh <dir>` (unset: distro ffmpeg)
+# FFMPEG_SHARED_PREFIX=<dir>  also build gpod-utils-shared against the private
+#                             shared ffmpeg built by `ci/build-ffmpeg.sh <dir> shared`
+#
+# Both variants install the same /usr/bin paths, so the tree is built twice in
+# place: gpod-utils first, then distclean + reconfigure for gpod-utils-shared.
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+GPOD_FF_LIBDIR := /usr/lib/$(DEB_HOST_MULTIARCH)/gpod-utils
+
 ifneq ($(FFMPEG_PREFIX),)
-export PKG_CONFIG_PATH := $(FFMPEG_PREFIX)/lib/pkgconfig
-override_dh_auto_configure:
-	dh_auto_configure -- --enable-static-ffmpeg
+STATIC_ENV  := PKG_CONFIG_PATH=$(FFMPEG_PREFIX)/lib/pkgconfig
+STATIC_ARGS := --enable-static-ffmpeg
+endif
+
+ifeq ($(FFMPEG_SHARED_PREFIX),)
+DH_ARGS := -Ngpod-utils-shared
 endif
 
 
 %:
-	dh $@
+	dh $@ $(DH_ARGS)
+
+override_dh_auto_configure:
+	$(STATIC_ENV) dh_auto_configure -- $(STATIC_ARGS)
+
+override_dh_auto_install:
+	dh_auto_install --destdir=debian/gpod-utils
+ifneq ($(FFMPEG_SHARED_PREFIX),)
+	$(MAKE) distclean
+	PKG_CONFIG_PATH=$(FFMPEG_SHARED_PREFIX)/lib/pkgconfig \
+	  dh_auto_configure -- --with-ffmpeg-suffix=-gpod --with-ffmpeg-rpath=$(GPOD_FF_LIBDIR)
+	dh_auto_build
+	dh_auto_install --destdir=debian/gpod-utils-shared
+	install -d debian/gpod-utils-shared$(GPOD_FF_LIBDIR)
+	cp -a $(FFMPEG_SHARED_PREFIX)/lib/lib*-gpod.so.* debian/gpod-utils-shared$(GPOD_FF_LIBDIR)/
+endif
+
+# the bundled libav*-gpod are private (no shlibs/symbols for other packages)
+override_dh_makeshlibs:
+	dh_makeshlibs -X$(GPOD_FF_LIBDIR)
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(CURDIR)/debian/gpod-utils-shared$(GPOD_FF_LIBDIR)
 
 
 # dh_make generated override targets.

@@ -246,6 +246,15 @@ ci/build-ffmpeg.sh /opt/gpod-ffmpeg
 autoreconf --install
 PKG_CONFIG_PATH=/opt/gpod-ffmpeg/lib/pkgconfig ./configure --enable-static-ffmpeg
 make
+```
+
+Each release also ships a `gpod-utils-shared` `deb`/`rpm` - the same tools linked against one private copy of the minimal `ffmpeg` as shared libraries (`/usr/lib/<triplet>/gpod-utils/libav*-gpod.so`, the `-gpod` suffix keeps them apart from the distro `libav*`) instead of a static `ffmpeg` in every tool: ~9MB installed rather than ~52MB, useful for containers and small NAS boxes.  The two packages conflict - install one.  To build that way locally:
+
+```
+ci/build-ffmpeg.sh /opt/gpod-ffmpeg-shared shared
+autoreconf --install
+PKG_CONFIG_PATH=/opt/gpod-ffmpeg-shared/lib/pkgconfig ./configure --with-ffmpeg-suffix=-gpod --with-ffmpeg-rpath=/opt/gpod-ffmpeg-shared/lib
+make
 ```  Metadata from the originating audio file can be copied to the transcoded file - this will be aid identifying files from the internal `iPod` storage at a later point.
 
 Transcodes preserve the source characteristics where the `iPod` allows: the input sample rate is kept for sources ≤48000 Hz (no forced resample), bit-depth is preserved for high resolution sources when the encoder supports it (eg 24-bit `flac` to `alac` stays 24-bit/s32p rather than degrading to 16-bit), and mono stays mono (no stereo upmix) with surround downmixed to stereo.  `iPod` audio only support up to 48000 and we perform automatic sample rate conversions when the source exceeds it; out-of-spec `alac` sources (eg 96kHz or surround) are transcoded to a supported rate/layout rather than copied verbatim.  Re-sampled audio files are not directly equivalent to `ffmpeg`, as verified by per-frame hash `ffmpeg -i foo.mp3 -f framehash foo.sha256` or file stream hash `ffmpeg -i foo.mp3 -c:a copy -bsf:a null -f hash -`, although the non sample rate conversions are equivalent.

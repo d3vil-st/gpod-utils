@@ -34,7 +34,6 @@
 #include <gpod/itdb.h>
 
 #include "sha1.h"
-#include "gpod-ffmpeg.h"
 
 
 const char*  gpod_setlocale()
@@ -300,25 +299,6 @@ int  gpod_hash_digest_file(struct gpod_hash_digest* res_, const char* path_)
     return 0;
 }
 
-guint  gpod_hash_file(const char* path_)
-{
-    char*  err = NULL;
-    char*  streamhash = NULL;
-    guint  ret;
-    if ((ret = gpod_ff_audio_hash(&streamhash, path_, &err)) == 0) {
-	ret = gpod_djbhash(streamhash);
-    }
-    free(streamhash);
-    free(err);
-
-    return ret;
-}
-
-void   gpod_store_cksum(Itdb_Track* track_, const char* file_)
-{
-    track_->unk196 = gpod_hash_file(file_);
-}
-
 guint  gpod_saved_cksum(const Itdb_Track* track_)
 {
     return track_->unk196;
@@ -396,15 +376,6 @@ void  gpod_track_fs_hash_destroy(struct gpod_track_fs_hash* htbl_)
     g_hash_table_destroy(htbl_->tbl);
 
     memset(htbl_, 0, sizeof(struct gpod_track_fs_hash));
-}
-
-bool  gpod_track_fs_hash_contains(const struct gpod_track_fs_hash* htbl_, const Itdb_Track* track_, const char* path_)
-{
-    const guint  hash = track_->itdb ? gpod_hash(track_) : gpod_hash_file(path_);
-
-    GSList*  what = g_hash_table_lookup(htbl_->tbl, &hash);
-
-    return what == NULL ? false : true;
 }
 
 GSList* gpod_track_fs_hash_lookup(const struct gpod_track_fs_hash* htbl_, const Itdb_Track* track_)

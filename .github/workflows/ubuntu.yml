@@ -32,21 +32,26 @@ jobs:
         id: ffmpeg-cache
         uses: actions/cache@v4
         with:
-          path: ~/gpod-ffmpeg
+          path: |
+            ~/gpod-ffmpeg
+            ~/gpod-ffmpeg-shared
           key: ffmpeg-${{ matrix.os }}-${{ hashFiles('ci/build-ffmpeg.sh') }}
 
       - name: Build ffmpeg
         if: steps.ffmpeg-cache.outputs.cache-hit != 'true'
-        run: ci/build-ffmpeg.sh "$HOME/gpod-ffmpeg"
-
-      - name: Build deb
         run: |
-          FFMPEG_PREFIX="$HOME/gpod-ffmpeg" fakeroot debian/rules binary
+          ci/build-ffmpeg.sh "$HOME/gpod-ffmpeg"
+          ci/build-ffmpeg.sh "$HOME/gpod-ffmpeg-shared" shared
+
+      - name: Build debs (gpod-utils + gpod-utils-shared)
+        run: |
+          FFMPEG_PREFIX="$HOME/gpod-ffmpeg" FFMPEG_SHARED_PREFIX="$HOME/gpod-ffmpeg-shared" \
+            fakeroot debian/rules binary
 
       - name: Get debs
         run: |
           DISTRO=$(echo "${{ matrix.os }}" | sed 's/ubuntu-/ubuntu/')
-          for f in ../gpod-utils_*.deb; do
+          for f in ../gpod-utils_*.deb ../gpod-utils-shared_*.deb; do
             base=$(basename "$f" .deb)
             arch="${base##*_}"
             prefix="${base%_*}"
@@ -57,4 +62,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: deb-${{ matrix.os }}
-          path: gpod-utils_*.deb
+          path: gpod-utils*_*.deb

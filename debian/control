@@ -27,3 +27,17 @@ Depends:
  ${shlibs:Depends},
  ${misc:Depends},
 Description: Command line tools using 'libgpod' to access 'iPod' data.
+ With the CI build this links a static ffmpeg into each tool that needs it.
+
+Package: gpod-utils-shared
+Architecture: any
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+Provides: gpod-utils (= ${binary:Version})
+Conflicts: gpod-utils
+Replaces: gpod-utils
+Description: Command line tools using 'libgpod' to access 'iPod' data (shared ffmpeg).
+ Same tools as gpod-utils, linked against one private copy of ffmpeg's shared
+ libraries (/usr/lib/<triplet>/gpod-utils/libav*-gpod.so) instead of a static
+ ffmpeg in every tool - a much smaller install.

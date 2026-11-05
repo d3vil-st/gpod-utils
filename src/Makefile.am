@@ -17,6 +17,8 @@ dist_bin_SCRIPTS = gpod
 check_PROGRAMS = test-ff-xcode test-init-ipod test-gpool
 
 # using git version instead of the am values in config.h
+# gpod-tag/gpod-playlist never hash or decode audio: keep $(FFMPEG_LIBS) off them
+# so the static ffmpeg build isn't copied in (ls/rm hash audio for cksum dedupe)
 gpod_ls_SOURCES = gpod-ls.c
 gpod_ls_LDADD = lib/libgpod-utils.a $(AM_LDFLAGS) $(GPOD_LIBS) $(GLIB_LIBS) $(JSONC_LIBS) $(SQLITE3_LIBS) $(FFMPEG_LIBS)
 
@@ -24,10 +26,10 @@ gpod_rm_SOURCES = gpod-rm.c
 gpod_rm_LDADD = lib/libgpod-utils.a $(AM_LDFLAGS) $(GPOD_LIBS) $(GLIB_LIBS) $(JSONC_LIBS) $(SQLITE3_LIBS) $(FFMPEG_LIBS)
 
 gpod_tag_SOURCES = gpod-tag.c
-gpod_tag_LDADD = lib/libgpod-utils.a $(AM_LDFLAGS) $(GPOD_LIBS) $(GLIB_LIBS) $(FFMPEG_LIBS)
+gpod_tag_LDADD = lib/libgpod-utils.a $(AM_LDFLAGS) $(GPOD_LIBS) $(GLIB_LIBS)
 
 gpod_playlist_SOURCES = gpod-playlist.c
-gpod_playlist_LDADD = lib/libgpod-utils.a $(AM_LDFLAGS) $(GPOD_LIBS) $(GLIB_LIBS) $(FFMPEG_LIBS)
+gpod_playlist_LDADD = lib/libgpod-utils.a $(AM_LDFLAGS) $(GPOD_LIBS) $(GLIB_LIBS)
 
 
 gpod_hashsum_CFLAGS = ${AM_CFLAGS}
