@@ -51,6 +51,8 @@ void  _usage(char* argv0_)
              "\n"
              "    playlist CRUD on iPod/iTunesDB\n"
              "\n"
+             "    -M <iPod dir | iTunesDB>     location of iPod data\n"
+             "                                 default: $IPOD_MOUNT_POINT, else /run/media/$USER/IPOD\n"
              "    -l              list playlists; with -p <name>, list that playlist's tracks/rules\n"
              "    -c <name>       create new playlist\n"
              "    -c <name> -S    create smart playlist:\n"

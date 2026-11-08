@@ -795,6 +795,7 @@ void  _usage(const char* argv0_)
              "\n"
 	     "  iPod\n"
              "    -M  --mount-point              <iPod dir>               location of iPod data, as directory mount point\n"
+             "                                                            default: $IPOD_MOUNT_POINT, else /run/media/$USER/IPOD\n"
              "    -I  --init                                              initialise a 'fake' iPod, useful for using gpod-utils to manage a USB device for music - requires -M\n"
 	     "    -T  --threads                  <max threads>            number of threads for xcoding/copying - default: #system vCPUs\n"
 	     "\n"

@@ -436,6 +436,7 @@ void  _usage(char* argv0_)
              "\n"
              "    -M  --mount-point <dir | file>   location of iPod data, as directory mount point or\n"
              "                                     as a iTunesDB file  \n"
+             "                                     default: $IPOD_MOUNT_POINT, else /run/media/$USER/IPOD\n"
 #ifdef HAVE_SQLITE3
              "    -Q  --db-file     <sqlite3 db>   generate sqlite3 with a 'tracks' db, representing\n"
              "                                     all tracks in iTunesDB\n"

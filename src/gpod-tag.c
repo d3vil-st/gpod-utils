@@ -128,7 +128,7 @@ void  _usage(const char* argv_)
 	     "  empty string (\"\") or -1 to unset string and numeric flds repsectively\n"
              "  use gpod-ls to determine ipod path/id\n"
 	     "\n"
-	     "    -M  --mount-point  <iPod mount>>\n"
+	     "    -M  --mount-point  <iPod mount>  default: $IPOD_MOUNT_POINT, else /run/media/$USER/IPOD\n"
 	     "    -S  --santize  [Y|N]    sanitize text tags, chars like ’ to '\n"
              , basename);
     g_free (basename);

@@ -230,6 +230,7 @@ void  _usage(const char* argv0_)
 	     "\n"
 	     "    Removes specified file(s) the iPod/iTunesDB\n"
 	     "    -M <iPod dir>   location of iPod data as directoy mount point\n"
+	     "                    default: $IPOD_MOUNT_POINT, else /run/media/$USER/IPOD\n"
 	     "    -a              automatically purge duplicate files based on cksum leaving the track added first.  Must be first arg\n"
 	     "    -i              interactive/confirmation for delete\n"
 	     "    -P              removing playlists rather than files (accepts names only)\n"

@@ -41,6 +41,14 @@ iPhoneOS 3.x |yes|no |yes|yes|yes
 ### mount points
 Most modern Linux distros and window managers will try to automount old `iPod`'s filesystem to a location such as `/run/media/${USER}/<name of iPod>/`.  However this is not a given and I've seen this fail for `iPhones` and `iPod touch` even though the distros mount items through `gvfs`.  If your `iPod` is not automounted, try the following to mount `mkdir -p /tmp/ipod && ifuse /tmp/ipod` and this to unmount `fusermoumt -u /tmp/ipod` when done.
 
+The iPod location is given to each tool with `-M`.  When `-M` is omitted the tools (all except `gpod-hashsum`) use the `IPOD_MOUNT_POINT` environment variable, falling back to `/run/media/${USER}/IPOD`:
+```shell
+$ export IPOD_MOUNT_POINT=/run/media/ray/IPOD
+$ gpod-ls | jq '.'                      # same as gpod-ls -M /run/media/ray/IPOD
+$ gpod cp foo.flac                      # same as gpod-cp -M /run/media/ray/IPOD foo.flac
+```
+An explicit `-M` always takes precedence.  `gpod-cp -I` (initialise a device) still requires an explicit `-M`.
+
 ## `gpod` dispatcher
 All tools can be invoked through the `gpod` dispatcher - `gpod <command> [args...]` executes the corresponding `gpod-<command>`:
 ```shell
@@ -415,7 +423,7 @@ _clean_|x||not recoverable, delete from db
 _add_||x|(`-a`) sync with filesystem, add to db
 _remove_||x|(`-d`) sync with db, remove from filesystem
 ```shell
-$ gpod-verify-M /run/media/ray/IPOD -a
+$ gpod-verify -M /run/media/ray/IPOD -a
 validating tracks from iPod Video (2nd Gen.) A446, currently 4/4 db/filesystem tracks
 CLEAN [  1]  /iPod_Control/Music/F13/libgpod031826.mp3 -> { id=52 title='some title' artist='foo' album='' time_added=1619260556 }
 ADD   [  1]  /iPod_Control/Music/F00/foo.mp3 -> { title='Sine' artist='ffmpeg' album='' }

@@ -177,6 +177,7 @@ void  _usage(char* argv0_)
              "\n"
              "    -M  --mount-point  <dir>   location of iPod data, as directory mount point or\n"
              "                               as a iTunesDB file  \n"
+             "                               default: $IPOD_MOUNT_POINT, else /run/media/$USER/IPOD\n"
              "    -a  --add                  [ADD]   sync iTunesDB as files on device\n"
              "                               all files on device will have entry to db\n"
              "    -d  --delete               [REMVE] sync files iTunesDB as files on device\n"
