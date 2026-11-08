@@ -43,7 +43,10 @@ case "${2:-static}" in
   *) echo "usage: $0 <prefix> [static|shared]" >&2; exit 1 ;;
 esac
 # release/9.1 - bump to the n9.1 tag once it is cut
-FFMPEG_REPO=${FFMPEG_REPO:-https://git.ffmpeg.org/ffmpeg.git}
+# git.ffmpeg.org resets connections under load (parallel CI jobs fail with
+# "expected flush after ref listing"), so fetch from the official GitHub
+# mirror first and retry, falling back to upstream
+FFMPEG_REPOS=${FFMPEG_REPO:-"https://github.com/FFmpeg/FFmpeg.git https://git.ffmpeg.org/ffmpeg.git"}
 FFMPEG_REF=${FFMPEG_REF:-f8e017db6bdac7e1d40ce24a286cf91149513877}
 JOBS=${JOBS:-$(nproc)}
 
@@ -51,7 +54,18 @@ SRC=$(mktemp -d)
 trap 'rm -rf "$SRC"' EXIT
 
 git -C "$SRC" init -q
-git -C "$SRC" fetch -q --depth 1 "$FFMPEG_REPO" "$FFMPEG_REF"
+fetched=
+for attempt in 1 2 3; do
+  for repo in $FFMPEG_REPOS; do
+    if git -C "$SRC" fetch -q --depth 1 "$repo" "$FFMPEG_REF"; then
+      fetched=1
+      break 2
+    fi
+    echo "fetch from $repo failed (attempt $attempt)" >&2
+  done
+  sleep $((attempt * 10))
+done
+[ -n "$fetched" ] || { echo "failed to fetch ffmpeg $FFMPEG_REF" >&2; exit 1; }
 git -C "$SRC" checkout -q FETCH_HEAD
 
 ASM=--enable-x86asm
