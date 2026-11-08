@@ -125,6 +125,7 @@ struct gpod_ff_media_info
     bool  supported_ipod_fmt;  // mp3, m4a, mp4/m4v
     bool  native_flac;  // input: treat flac as iPod supported (no xcode), for fw with flac support
     bool  xcode_lossless;  // input: treat lossless (alac, native flac) as unsupported so it is transcoded
+    uint32_t  max_lossless_bits;  // input: lossless (alac, native flac) above this bit depth is transcoded, 0 = no cap
 
     struct gpod_ff_audio  audio;
     struct gpod_ff_video  video;
@@ -185,6 +186,7 @@ struct gpod_ff_transcode_ctx {
         uint8_t  channels;
         uint32_t  samplerate;
         enum AVSampleFormat  samplefmt;
+        uint8_t  max_bits;  // cap integer output bit depth (eg 16 for 5th gen), 0 = keep input depth
         enum gpod_ff_transcode_quality  quality;
         float  quality_scale_factor;
     } audio_opts;

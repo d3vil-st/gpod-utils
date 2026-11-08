@@ -154,6 +154,16 @@ static bool  _track_key_valid(Itdb_Track* track_)
            strlen(track_->artist);
 }
 
+/* 5th gen (video) iPod fw only decodes 16bit lossless; later models cope
+ * with 24bit alac
+ */
+static bool
+_lossless_16bit_only(Itdb_IpodGeneration idevice_)
+{
+    return idevice_ == ITDB_IPOD_GENERATION_VIDEO_1 ||
+           idevice_ == ITDB_IPOD_GENERATION_VIDEO_2;
+}
+
 /* parse the track info to make sure its a compatible format, if not supported
  * attempt transcode otherwise NULL retruned
  */
@@ -165,6 +175,7 @@ _track(const char* file_, struct gpod_ff_transcode_ctx* xfrm_, uint64_t uuid_, I
     mi.native_flac = opts.native_flac;
     // re-encoding alac with alac gains nothing
     mi.xcode_lossless = opts.xcode_lossless && opts.enc != GPOD_FF_ENC_ALAC;
+    mi.max_lossless_bits = _lossless_16bit_only(idevice_) ? 16 : 0;
 
     const char*  file = file_;
     if (gpod_ff_scan(&mi, file, idevice_, err_) < 0) {
@@ -576,6 +587,10 @@ void gpod_cp_thread(gpointer args_, gpointer pool_args_)
     }
 
     gpod_ff_transcode_ctx_init(&xfrm, opts.enc, opts.xcode_quality, opts.sync_meta);
+    if (_lossless_16bit_only(pargs->ipodinfo->ipod_generation)) {
+        // otherwise >16bit input keeps its depth (s32p) and the 5th gen can't play it
+        xfrm.audio_opts.max_bits = 16;
+    }
 
     g_mutex_lock(&pargs->cp_lck);
     gettimeofday(&tv, NULL);

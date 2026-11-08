@@ -726,9 +726,12 @@ int  gpod_ff_scan(struct gpod_ff_media_info *info_, const char *file_, Itdb_Ipod
 
 	info_->audio.codec_id = audio_codec_id = audio_stream->codecpar->codec_id;
 	info_->audio.samplerate = audio_stream->codecpar->sample_rate;
-	info_->audio.bits_per_sample = 8 * av_get_bytes_per_sample(audio_stream->codecpar->format);
-
-	info_->audio.bits_per_sample = av_get_bits_per_sample(audio_stream->codecpar->codec_id);
+	/* real bit depth for lossless codecs (eg 24 for alac/flac in s32p),
+	 * otherwise fall back to the container sample size */
+	info_->audio.bits_per_sample = audio_stream->codecpar->bits_per_raw_sample;
+	if (info_->audio.bits_per_sample == 0) {
+	    info_->audio.bits_per_sample = 8 * av_get_bytes_per_sample(audio_stream->codecpar->format);
+	}
 
 #ifdef HAVE_FF5_CH_LAYOUT
 	info_->audio.channels = audio_stream->codecpar->ch_layout.nb_channels;
@@ -848,7 +851,8 @@ int  gpod_ff_scan(struct gpod_ff_media_info *info_, const char *file_, Itdb_Ipod
             case AV_CODEC_ID_ALAC:
                 info_->supported_ipod_fmt = (!info_->xcode_lossless &&
                                              info_->audio.samplerate <= GPOD_MAX_SAMPLERATE &&
-                                             info_->audio.channels   <= 2);
+                                             info_->audio.channels   <= 2 &&
+                                             (info_->max_lossless_bits == 0 || info_->audio.bits_per_sample <= info_->max_lossless_bits));
                 break;
 
             /* only natively supported on iPod fw with flac support, otherwise
@@ -857,7 +861,8 @@ int  gpod_ff_scan(struct gpod_ff_media_info *info_, const char *file_, Itdb_Ipod
             case AV_CODEC_ID_FLAC:
                 info_->supported_ipod_fmt = (info_->native_flac && !info_->xcode_lossless &&
                                              info_->audio.samplerate <= GPOD_MAX_SAMPLERATE &&
-                                             info_->audio.channels   <= 2);
+                                             info_->audio.channels   <= 2 &&
+                                             (info_->max_lossless_bits == 0 || info_->audio.bits_per_sample <= info_->max_lossless_bits));
 
                 extra_md_map = md_map_vorbis;
                 break;

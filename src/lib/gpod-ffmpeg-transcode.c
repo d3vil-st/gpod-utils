@@ -339,6 +339,26 @@ static int open_output_file(struct gpod_ff_transcode_ctx* target_,
                 if (*p == planar) { avctx->sample_fmt = planar; break; }
             }
         }
+
+        /* Bit depth: like the samplerate, cap at the device maximum but never
+         * widen - only integer formats (lossless output), float (aac) is left
+         * alone */
+        const enum AVSampleFormat  packed = av_get_packed_sample_fmt(avctx->sample_fmt);
+        if (target_->audio_opts.max_bits &&
+            (packed == AV_SAMPLE_FMT_S32 || packed == AV_SAMPLE_FMT_S64) &&
+            8 * av_get_bytes_per_sample(avctx->sample_fmt) > target_->audio_opts.max_bits &&
+            target_->audio_opts.max_bits <= 16 && fmts)
+        {
+            const enum AVSampleFormat  want = av_sample_fmt_is_planar(avctx->sample_fmt) ? AV_SAMPLE_FMT_S16P : AV_SAMPLE_FMT_S16;
+            for (const enum AVSampleFormat *p = fmts; *p != AV_SAMPLE_FMT_NONE; p++) {
+                if (*p == want) { avctx->sample_fmt = want; break; }
+            }
+            if (avctx->sample_fmt != want) {
+                for (const enum AVSampleFormat *p = fmts; *p != AV_SAMPLE_FMT_NONE; p++) {
+                    if (av_get_packed_sample_fmt(*p) == AV_SAMPLE_FMT_S16) { avctx->sample_fmt = *p; break; }
+                }
+            }
+        }
     } else {
         avctx->sample_fmt = target_->audio_opts.samplefmt;
     }
