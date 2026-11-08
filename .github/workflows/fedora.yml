@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Install git
-        run: dnf install -y git
+        run: dnf install -y git tar zstd
 
       - uses: actions/checkout@v3
 
@@ -31,7 +31,24 @@ jobs:
             sqlite-devel \
             rpm-build rpmdevtools
 
+      # built once on master by ffmpeg.yml; only rebuilt here on a cache miss
+      - name: Cache key
+        id: key
+        run: |
+          . /etc/os-release
+          echo "key=ffmpeg-fedora${VERSION_ID}-$(uname -m)-${{ hashFiles('ci/build-ffmpeg.sh') }}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore ffmpeg
+        id: ffmpeg-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            /opt/gpod-ffmpeg
+            /opt/gpod-ffmpeg-shared
+          key: ${{ steps.key.outputs.key }}
+
       - name: Build ffmpeg
+        if: steps.ffmpeg-cache.outputs.cache-hit != 'true'
         run: |
           ci/build-ffmpeg.sh /opt/gpod-ffmpeg
           ci/build-ffmpeg.sh /opt/gpod-ffmpeg-shared shared

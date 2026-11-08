@@ -1,0 +1,109 @@
+name: Build ffmpeg
+
+# Builds the private ffmpeg (static + shared, ci/build-ffmpeg.sh) once per
+# target and caches it on the default branch. Tag builds (ubuntu.yml,
+# fedora.yml) can restore default-branch caches but not caches of other
+# tags, so without this every release rebuilt ffmpeg 12 times in parallel.
+#
+# Runs when the build script changes, weekly so the caches aren't evicted
+# (GitHub drops caches unused for 7 days; a restore counts as use), and by
+# hand. On a cache hit the job only restores.
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - ci/build-ffmpeg.sh
+      - .github/workflows/ffmpeg.yml
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+
+jobs:
+  ubuntu:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-24.04-arm, ubuntu-26.04, ubuntu-26.04-arm]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore ffmpeg
+        id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/gpod-ffmpeg
+            ~/gpod-ffmpeg-shared
+          key: ffmpeg-${{ matrix.os }}-${{ hashFiles('ci/build-ffmpeg.sh') }}
+
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -yq build-essential git pkg-config nasm libmp3lame-dev zlib1g-dev
+
+      - name: Build ffmpeg
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          ci/build-ffmpeg.sh "$HOME/gpod-ffmpeg"
+          ci/build-ffmpeg.sh "$HOME/gpod-ffmpeg-shared" shared
+
+      - name: Save ffmpeg
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/gpod-ffmpeg
+            ~/gpod-ffmpeg-shared
+          key: ${{ steps.cache.outputs.cache-primary-key }}
+
+  fedora:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-26.04, ubuntu-26.04-arm]
+    runs-on: ${{ matrix.os }}
+    container: fedora:latest
+
+    steps:
+      - name: Install git
+        run: dnf install -y git tar zstd
+
+      - uses: actions/checkout@v4
+
+      - name: Cache key
+        id: key
+        run: |
+          . /etc/os-release
+          echo "key=ffmpeg-fedora${VERSION_ID}-$(uname -m)-${{ hashFiles('ci/build-ffmpeg.sh') }}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore ffmpeg
+        id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            /opt/gpod-ffmpeg
+            /opt/gpod-ffmpeg-shared
+          key: ${{ steps.key.outputs.key }}
+
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: dnf install -y gcc make pkgconfig lame-devel zlib-devel nasm
+
+      - name: Build ffmpeg
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          ci/build-ffmpeg.sh /opt/gpod-ffmpeg
+          ci/build-ffmpeg.sh /opt/gpod-ffmpeg-shared shared
+
+      - name: Save ffmpeg
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            /opt/gpod-ffmpeg
+            /opt/gpod-ffmpeg-shared
+          key: ${{ steps.key.outputs.key }}
