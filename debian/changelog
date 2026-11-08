@@ -1,3 +1,14 @@
+gpod-utils (1.6.4) UNRELEASED; urgency=medium
+
+  * gpod-cp: cap lossless (ALAC, -L native FLAC) bit depth at 16 for 5th
+    gen (Video) iPods, like the 48k samplerate cap: >16bit files are
+    transcoded and integer output is clamped to 16bit. Other models and
+    gpod-verify unchanged. Fix bit depth detection (was 0 for ALAC/FLAC).
+  * Document the IPOD_MOUNT_POINT env fallback for -M in every tool's
+    help and the README.
+
+ -- Ilya Kargapolov <d3vil.st@gmail.com>  Sun, 08 Nov 2026 21:57:36 +0100
+
 gpod-utils (1.6.3) UNRELEASED; urgency=medium
 
   * gpod-utils-shared: also ship ffmpeg and ffprobe programs built on the
