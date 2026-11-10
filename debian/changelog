@@ -1,3 +1,11 @@
+gpod-utils (1.6.5) UNRELEASED; urgency=medium
+
+  * gpod-cp -I: write the iPod's own model (from SysInfoExtended or an
+    existing SysInfo) instead of always MA446; a plain USB device with
+    neither still gets MA446.
+
+ -- Ilya Kargapolov <d3vil.st@gmail.com>  Tue, 10 Nov 2026 23:44:25 +0100
+
 gpod-utils (1.6.4) UNRELEASED; urgency=medium
 
   * gpod-cp: cap lossless (ALAC, -L native FLAC) bit depth at 16 for 5th
