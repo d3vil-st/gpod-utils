@@ -1088,8 +1088,27 @@ int main (int argc, char *argv[])
             }
             mountpoint[0] = '\0';
 
-            g_print("initialising gpod-utils device '%s'\n", opts.itdb_path);
-            if (!itdb_init_ipod (opts.itdb_path, "MA446", "gpod-utils device", &error)) {
+            /* The model written to SysInfo: a real iPod's own, as libgpod
+             * reads it from SysInfoExtended (by serial) or an existing
+             * SysInfo; a plain USB device with neither is a 'fake' 5th gen
+             * (MA446). Writing MA446 on a real iPod made libgpod take an
+             * iPod classic for a 5th gen wherever it goes by SysInfo.
+             */
+            gchar*  model = g_strdup("MA446");
+            Itdb_Device*  device = itdb_device_new();
+            itdb_device_set_mountpoint(device, opts.itdb_path);
+            const Itdb_IpodInfo*  info = itdb_device_get_ipod_info(device);
+            if (info && info->model_number &&
+                info->ipod_model != ITDB_IPOD_MODEL_INVALID && info->ipod_model != ITDB_IPOD_MODEL_UNKNOWN) {
+                g_free(model);
+                model = g_strdup_printf("M%s", info->model_number);
+            }
+            itdb_device_free(device);
+
+            g_print("initialising gpod-utils device '%s' (model %s)\n", opts.itdb_path, model);
+            const bool  initok = itdb_init_ipod (opts.itdb_path, model, "gpod-utils device", &error);
+            g_free(model);
+            if (!initok) {
                 g_printerr("failed to initialise %s - %s\n", opts.itdb_path, error->message ? error->message : "<unknown>");
                 g_error_free(error);
                 return -1;
